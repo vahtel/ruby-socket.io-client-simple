@@ -22,7 +22,9 @@ module SocketIO
           @reconnecting = false
           @state = :disconnect
           @auto_reconnection = true
-
+          
+          @end_thread = false
+          
           Thread.new do
             loop do
               if @websocket
@@ -39,8 +41,13 @@ module SocketIO
                   reconnect
                 end
               end
+              
+              if @end_thread
+                break
+              end  
               sleep 1
             end
+            
           end
 
         end
@@ -121,6 +128,8 @@ module SocketIO
         end
 
         def disconnect
+          @end_thread = true
+          
           @auto_reconnection = false
           @websocket.close
           @state = :disconnect
